@@ -1,27 +1,49 @@
 {
-  "name": "tg-scaffold",
-  "version": "0.1.0",
+  "name": "touchgrass-ai",
+  "version": "1.0.0",
   "private": true,
+  "description": "AI-powered outdoor activity companion that generates short missions designed to get you off your screen.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run typecheck && npm run lint",
+    "icons": "node scripts/make-icons.mjs",
+    "probe:ai": "node scripts/probe-ollama.mjs",
+    "test:e2e": "node scripts/e2e.mjs",
+    "screenshots": "node scripts/screenshots.mjs",
+    "test:db": "node scripts/with-mongo.mjs node scripts/e2e-mongo.mjs",
+    "dev:mongo": "node scripts/with-mongo.mjs npm run dev"
   },
   "dependencies": {
+    "@radix-ui/react-label": "^2.1.16",
+    "@radix-ui/react-progress": "^1.1.17",
+    "@radix-ui/react-separator": "^1.1.16",
+    "@radix-ui/react-slot": "^1.4.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^1.52.0",
+    "mongoose": "^9.11.0",
+    "next": "15.5.27",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.5.27"
+    "tailwind-merge": "^3.7.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/leaflet": "^1.9.22",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.5.27",
-    "@eslint/eslintrc": "^3"
+    "mongodb-memory-server": "^11.3.0",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }

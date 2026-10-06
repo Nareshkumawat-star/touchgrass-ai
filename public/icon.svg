@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="TouchGrass AI">
+  <rect width="512" height="512" rx="112" fill="#2c5a34"/>
+  <path d="M128 384c0-128 96-224 256-256-32 160-128 256-256 256z" fill="#8ac35c"/>
+  <path d="M128 384c64-64 128-112 224-144" stroke="#2c5a34" stroke-width="14" fill="none" stroke-linecap="round"/>
+  <circle cx="128" cy="384" r="22" fill="#e6efdd"/>
+</svg>

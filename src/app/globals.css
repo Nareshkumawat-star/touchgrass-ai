@@ -1,26 +1,262 @@
 @import "tailwindcss";
 
+/*
+  TouchGrass AI — design tokens
+  Nature-inspired, premium, minimal. Light-first (used outdoors in daylight),
+  with a calm dark mode for dusk missions.
+  No heavy glassmorphism: layered paper surfaces, soft shadows, generous space.
+*/
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f7f8f2;
+  --foreground: #16221a;
+
+  --card: #ffffff;
+  --card-foreground: #16221a;
+
+  --surface: #eef2e7;
+  --surface-foreground: #223526;
+
+  --muted: #e9eee1;
+  --muted-foreground: #5b6a5d;
+
+  --border: #dde4d4;
+  --input: #e4e9dc;
+  --ring: #3f6b33;
+
+  --primary: #2c5a34;
+  --primary-foreground: #f7fbf2;
+
+  --secondary: #e6efdd;
+  --secondary-foreground: #24401f;
+
+  --accent: #6ba03c;
+  --accent-foreground: #14210f;
+
+  --earth: #a9713f;
+  --earth-foreground: #fdf6ee;
+
+  --sky: #78aecf;
+  --sky-foreground: #0d2333;
+
+  --sun: #dda93c;
+
+  --destructive: #b4482f;
+  --destructive-foreground: #fdf3f0;
+
+  --radius: 1rem;
+
+  --shadow-soft: 0 1px 2px rgba(22, 34, 26, 0.05), 0 10px 24px -14px rgba(22, 34, 26, 0.18);
+  --shadow-lift: 0 2px 4px rgba(22, 34, 26, 0.05), 0 22px 40px -22px rgba(22, 34, 26, 0.28);
+}
+
+.dark {
+  --background: #101a14;
+  --foreground: #eaf2e6;
+
+  --card: #17241b;
+  --card-foreground: #eaf2e6;
+
+  --surface: #1b2a20;
+  --surface-foreground: #e2ecdc;
+
+  --muted: #1e2d22;
+  --muted-foreground: #9db2a0;
+
+  --border: #26382c;
+  --input: #26382c;
+  --ring: #7dbb57;
+
+  --primary: #8ac35c;
+  --primary-foreground: #10200d;
+
+  --secondary: #22331f;
+  --secondary-foreground: #dcecd3;
+
+  --accent: #9ed167;
+  --accent-foreground: #13200d;
+
+  --earth: #c98d55;
+  --earth-foreground: #1d130a;
+
+  --sky: #8dc2e0;
+  --sky-foreground: #0b1c26;
+
+  --sun: #e6bb5c;
+
+  --destructive: #e0705a;
+  --destructive-foreground: #210d08;
+
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 28px -16px rgba(0, 0, 0, 0.7);
+  --shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.45), 0 24px 44px -24px rgba(0, 0, 0, 0.8);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-earth: var(--earth);
+  --color-earth-foreground: var(--earth-foreground);
+  --color-sky: var(--sky);
+  --color-sky-foreground: var(--sky-foreground);
+  --color-sun: var(--sun);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-display: var(--font-display-serif), Georgia, "Times New Roman", serif;
+
+  --radius-sm: calc(var(--radius) - 0.5rem);
+  --radius-md: calc(var(--radius) - 0.25rem);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 0.5rem);
+  --radius-2xl: calc(var(--radius) + 1rem);
+
+  --shadow-soft: var(--shadow-soft);
+  --shadow-lift: var(--shadow-lift);
+
+  --animate-fade-up: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-fade-in: fade-in 0.4s ease-out both;
+  --animate-rise: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-breathe: breathe 6s ease-in-out infinite;
+  --animate-sway: sway 7s ease-in-out infinite;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(-1.5deg);
+  }
+  50% {
+    transform: rotate(1.5deg);
+  }
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Subtle topographic texture — the "outside" feel without glassmorphism. */
+.topo {
+  background-image: radial-gradient(
+      circle at 12% 18%,
+      color-mix(in srgb, var(--accent) 9%, transparent) 0%,
+      transparent 42%
+    ),
+    radial-gradient(
+      circle at 88% 8%,
+      color-mix(in srgb, var(--sky) 12%, transparent) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 70% 92%,
+      color-mix(in srgb, var(--earth) 8%, transparent) 0%,
+      transparent 45%
+    );
+}
+
+.grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+}
+
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Leaflet needs a little nudging to match the design language. */
+.leaflet-container {
+  background: var(--surface);
+  font-family: var(--font-sans);
+  border-radius: var(--radius);
+}
+.leaflet-control-attribution {
+  font-size: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
 }
