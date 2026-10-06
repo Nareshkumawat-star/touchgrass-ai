@@ -223,7 +223,9 @@ npm run start       # production server
 npm run typecheck   # tsc --noEmit (strict)
 npm run lint        # eslint
 npm run verify      # typecheck + lint
+npm run test:e2e    # full API suite against a running server (99 checks)
 npm run test:db     # MongoDB store smoke test (mongodb-memory-server)
+npm run test:ui     # walks the onboarding wizard in headless Chrome
 npm run icons       # regenerate the PWA PNG icons
 ```
 
@@ -484,11 +486,18 @@ Everything below was run against the real app, not asserted:
   mission generation with a real local Qwen model → completion with points and
   streak → vision analysis of a photo → discovery save/list/delete → stats →
   offline `/api/sync` replay (including duplicate-replay idempotency) → demo
-  seeding and reset → `/api/health` — **93 checks, 0 failures**
-  (`node scripts/e2e.mjs http://127.0.0.1:3100`).
-- The same 93 checks re-run against the MongoDB store with `mongodb-memory-server`
-  (`npm run test:db`) — **93 checks, 0 failures** — because no MongoDB daemon runs
+  seeding and reset → `/api/health` — **99 checks, 0 failures**
+  (`node scripts/e2e.mjs http://127.0.0.1:3100`). Onboarding is covered there by
+  the privacy rule (coordinates sent while location is declined are dropped), the
+  idempotency rule (re-submitting onboarding reuses the account instead of
+  orphaning it), and the ~1 km rounding of an opted-in position.
+- The same 99 checks re-run against the MongoDB store with `mongodb-memory-server`
+  (`npm run test:db`) — **99 checks, 0 failures** — because no MongoDB daemon runs
   on the development machine.
+- The onboarding wizard itself driven in a real browser (headless Chrome over the
+  DevTools protocol): step gating, submission, the redirect to the dashboard, the
+  authenticated `/onboarding` redirect, and a clean console — **12 checks,
+  0 failures** (`npm run test:ui`), passing five consecutive runs.
 - Offline behaviour verified by completing a mission with the network
   interrupted: it queues locally, then syncs and awards points exactly once.
 - Screenshots captured from the running production build with headless Chrome.

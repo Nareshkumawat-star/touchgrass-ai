@@ -13,6 +13,7 @@
     "icons": "node scripts/make-icons.mjs",
     "probe:ai": "node scripts/probe-ollama.mjs",
     "test:e2e": "node scripts/e2e.mjs",
+    "test:ui": "node scripts/onboarding-ui.mjs",
     "screenshots": "node scripts/screenshots.mjs",
     "test:db": "node scripts/with-mongo.mjs node scripts/e2e-mongo.mjs",
     "dev:mongo": "node scripts/with-mongo.mjs npm run dev"
