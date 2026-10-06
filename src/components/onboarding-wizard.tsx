@@ -143,7 +143,9 @@ export function OnboardingWizard() {
         activities,
         surpriseMe,
         locationPermission: skipLocation ? false : locationPermission,
-        approximateLocation: skipLocation ? undefined : (coords ?? undefined),
+        // Coordinates are only ever sent together with an explicit opt-in.
+        approximateLocation:
+          skipLocation || !locationPermission ? undefined : (coords ?? undefined),
       };
 
       const response = await fetch("/api/onboarding", {

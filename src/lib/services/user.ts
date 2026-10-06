@@ -4,7 +4,7 @@
 
 import { getStore } from "@/lib/db";
 import type { OnboardingInput, PreferencesInput } from "@/lib/schemas";
-import { setSession } from "@/lib/session";
+import { getSessionUserId, setSession } from "@/lib/session";
 import type { ApproximateLocation, UserRecord } from "@/lib/types";
 
 /**
@@ -29,19 +29,45 @@ export async function createUserFromOnboarding(
   options: { isDemo?: boolean } = {},
 ): Promise<UserRecord> {
   const store = await getStore();
+
+  const preferences = {
+    experience: input.experience,
+    availableTime: input.availableTime,
+    activities: input.activities,
+    difficulty: input.difficulty,
+    surpriseMe: input.surpriseMe,
+  };
+
+  // Sharing is opt-in: a position that arrives alongside
+  // `locationPermission: false` is dropped, never persisted.
+  const approximateLocation = input.locationPermission
+    ? input.approximateLocation
+      ? toApproximateLocation(input.approximateLocation)
+      : undefined
+    : undefined;
+
+  // Re-submitting onboarding must not orphan the account that already holds the
+  // visitor's missions — it happens whenever the back button restores the wizard
+  // (bfcache) after onboarding finished. Update that account in place instead of
+  // minting a second one and silently re-pointing the session at it.
+  const existingId = await getSessionUserId();
+  const existing = existingId ? await store.getUser(existingId) : null;
+  if (existing && !existing.isDemo && !options.isDemo) {
+    const withPreferences = await store.updateUserPreferences(existing.id, preferences);
+    const updated = await store.updateUserLocation(
+      existing.id,
+      input.locationPermission,
+      approximateLocation,
+    );
+    await setSession(existing.id, false);
+    return updated ?? withPreferences ?? existing;
+  }
+
   const user = await store.createUser({
     name: input.name.trim().slice(0, 60),
-    preferences: {
-      experience: input.experience,
-      availableTime: input.availableTime,
-      activities: input.activities,
-      difficulty: input.difficulty,
-      surpriseMe: input.surpriseMe,
-    },
+    preferences,
     locationPermission: input.locationPermission,
-    approximateLocation: input.approximateLocation
-      ? toApproximateLocation(input.approximateLocation)
-      : undefined,
+    approximateLocation,
     isDemo: options.isDemo ?? false,
   });
 

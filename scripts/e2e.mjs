@@ -145,6 +145,7 @@ const started = Date.now();
 }
 
 // 3. Onboarding
+let onboardingUserId = null;
 {
   const { status, body } = await api("/api/onboarding", {
     method: "POST",
@@ -161,6 +162,33 @@ const started = Date.now();
   check("POST /api/onboarding creates a user", status === 201, `got ${status}`);
   check("onboarding returns a user id", Boolean(body?.user?.id));
   check("session cookie was issued", cookie.startsWith("tg_session="), cookie);
+  onboardingUserId = body?.user?.id ?? null;
+
+  // Sharing is opt-in: a position sent alongside locationPermission:false must
+  // never reach storage, and re-submitting must not mint a duplicate account.
+  const declined = await api("/api/onboarding", {
+    method: "POST",
+    body: JSON.stringify({
+      name: "E2E Tester",
+      experience: "casual",
+      availableTime: 20,
+      difficulty: "easy",
+      activities: ["walking", "nature", "birds"],
+      surpriseMe: false,
+      locationPermission: false,
+      approximateLocation: { lat: 51.5007, lng: -0.1246 },
+    }),
+  });
+  check(
+    "coordinates sent while location is declined are not stored",
+    declined.status === 201 && declined.body?.user?.approximateLocation == null,
+    JSON.stringify(declined.body?.user?.approximateLocation ?? null),
+  );
+  check(
+    "re-submitting onboarding reuses the same account",
+    declined.body?.user?.id != null && declined.body.user.id === onboardingUserId,
+    `${onboardingUserId} → ${declined.body?.user?.id}`,
+  );
 
   const invalid = await api("/api/onboarding", {
     method: "POST",
@@ -399,9 +427,12 @@ if (VISION) {
   );
 }
 
-// 12b. A fresh account for the page checks and the deletion test
+// 12b. A fresh account for the page checks and the deletion test.
+// The first account already has a session, so onboarding would reuse it — a
+// genuinely new visitor arrives without a cookie, which is what this emulates.
 {
-  const { status } = await api("/api/onboarding", {
+  cookie = "";
+  const { status, body } = await api("/api/onboarding", {
     method: "POST",
     body: JSON.stringify({
       name: "Page Tester",
@@ -414,6 +445,11 @@ if (VISION) {
     }),
   });
   check("a second account can be created", status === 201, `got ${status}`);
+  check(
+    "a new visitor gets their own account, not a duplicate of the first",
+    Boolean(body?.user?.id) && body.user.id !== onboardingUserId,
+    `${onboardingUserId} vs ${body?.user?.id}`,
+  );
 }
 
 // 13. Pages
@@ -466,6 +502,33 @@ if (VISION) {
   check("DELETE /api/preferences removes the account", remove.status === 200 && remove.body?.deleted === true, JSON.stringify(remove.body));
   const after = await api("/api/stats");
   check("the session is cleared after deletion", after.status === 401, `got ${after.status}`);
+}
+
+// 15. Onboarding with location opted in (last, so the opt-in never leaks into
+// the earlier sections) — the position must arrive rounded to ~1 km.
+{
+  cookie = "";
+  const { status, body } = await api("/api/onboarding", {
+    method: "POST",
+    body: JSON.stringify({
+      name: "Local Tester",
+      experience: "casual",
+      availableTime: 30,
+      difficulty: "easy",
+      activities: ["walking"],
+      surpriseMe: false,
+      locationPermission: true,
+      approximateLocation: { lat: 51.5007, lng: -0.1246 },
+    }),
+  });
+  const stored = body?.user?.approximateLocation;
+  check("opting in stores the position", status === 201 && Boolean(stored), JSON.stringify(stored));
+  check(
+    "the stored position is rounded to about 1 km",
+    stored?.lat === 51.5 && stored?.lng === -0.12,
+    `${stored?.lat}, ${stored?.lng}`,
+  );
+  check("location permission was recorded", body?.user?.locationPermission === true);
 }
 
 /* ------------------------------------------------------------------ report */
