@@ -2,8 +2,10 @@
  * Walks the onboarding wizard in a real browser and asserts the UI flow:
  * step gating → submission → dashboard redirect → no console errors.
  *
- *   npm run build && npm start   (PORT=3100)
- *   node scripts/onboarding-ui.mjs http://127.0.0.1:3100
+ *   npm run build && npm start   (port 3000)
+ *   npm run test:ui
+ *
+ * An explicit base URL still works: node scripts/onboarding-ui.mjs http://127.0.0.1:3100
  *
  * Headless Chrome over the DevTools protocol — no extra dependencies, the
  * WebSocket client is built into Node 22+. Every interaction waits for the
@@ -20,7 +22,9 @@ import { join } from "node:path";
 
 const CHROME =
   process.env.CHROME_PATH ?? "C:/Program Files/Google/Chrome/Application/chrome.exe";
-const BASE = (process.argv[2] ?? "http://127.0.0.1:3100").replace(/\/$/, "");
+// Same default as scripts/e2e.mjs, so both bare npm scripts work against a
+// plain `npm run start` (Next serves port 3000).
+const BASE = (process.argv[2] ?? "http://127.0.0.1:3000").replace(/\/$/, "");
 const profile = mkdtempSync(join(tmpdir(), "tg-wizard-"));
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 

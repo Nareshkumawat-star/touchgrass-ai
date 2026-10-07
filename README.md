@@ -223,9 +223,9 @@ npm run start       # production server
 npm run typecheck   # tsc --noEmit (strict)
 npm run lint        # eslint
 npm run verify      # typecheck + lint
-npm run test:e2e    # full API suite against a running server (99 checks)
+npm run test:e2e    # full API suite against a server on :3000 (99 checks)
 npm run test:db     # MongoDB store smoke test (mongodb-memory-server)
-npm run test:ui     # walks the onboarding wizard in headless Chrome
+npm run test:ui     # onboarding wizard in headless Chrome (server on :3000)
 npm run icons       # regenerate the PWA PNG icons
 ```
 
