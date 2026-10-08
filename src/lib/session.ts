@@ -49,14 +49,14 @@ export async function getSessionUserId(): Promise<string | null> {
   return parseSession(store.get(appConfig.sessionCookie)?.value);
 }
 
-export async function setSession(userId: string, isDemo: boolean): Promise<void> {
+export async function setSession(userId: string): Promise<void> {
   const store = await cookies();
   store.set(appConfig.sessionCookie, serializeSession(userId), {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: isDemo ? 60 * 60 * 6 : 60 * 60 * 24 * 180,
+    maxAge: 60 * 60 * 24 * 180,
   });
 }
 

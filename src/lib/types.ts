@@ -151,7 +151,6 @@ export interface UserRecord {
   preferences: UserPreferences;
   locationPermission: boolean;
   approximateLocation?: ApproximateLocation;
-  isDemo: boolean;
   createdAt: string;
 }
 
@@ -189,8 +188,6 @@ export interface DiscoveryRecord {
   model: string;
   /** True when no vision model was reachable and we said so instead of guessing. */
   analysisUnavailable: boolean;
-  /** True only for clearly-labelled demo samples. */
-  simulated: boolean;
   createdAt: string;
 }
 

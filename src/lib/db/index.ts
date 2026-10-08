@@ -4,7 +4,7 @@
  * `getStore()` is the only thing the rest of the app imports. It prefers
  * MongoDB, and transparently falls back to the local JSON store when Mongo is
  * not configured or not reachable — so the app is never broken by a missing
- * database, which matters for a hackathon demo and for offline use.
+ * database, which matters for demos and for offline use.
  */
 
 import { connectMongo, mongoConfigured, mongoUnavailableReason } from "./mongoose";

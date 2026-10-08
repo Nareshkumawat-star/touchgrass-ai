@@ -37,7 +37,6 @@ interface AnalysisResult {
   provider: "local" | "huggingface" | "heuristic";
   model: string;
   analysisUnavailable: boolean;
-  simulated?: boolean;
   unavailableReason?: string;
   attempts: { provider: string; error: string }[];
 }
@@ -73,7 +72,7 @@ export function DiscoveryUploader({ missionId }: { missionId?: string }) {
     }
   }
 
-  async function analyze(options: { simulate?: boolean } = {}) {
+  async function analyze() {
     if (!image) return;
     setAnalyzing(true);
     setError(null);
@@ -85,7 +84,6 @@ export function DiscoveryUploader({ missionId }: { missionId?: string }) {
           imageUrl: image.dataUrl,
           missionId,
           hint: hint.trim() || undefined,
-          simulate: options.simulate,
         }),
       });
       const data = (await response.json()) as AnalysisResult & { error?: string };
@@ -121,7 +119,6 @@ export function DiscoveryUploader({ missionId }: { missionId?: string }) {
           provider: result.provider,
           model: result.model,
           analysisUnavailable: result.analysisUnavailable,
-          simulated: result.simulated ?? false,
         }),
       });
       if (!response.ok) {
@@ -239,7 +236,6 @@ export function DiscoveryUploader({ missionId }: { missionId?: string }) {
                 <Badge variant={result.analysisUnavailable ? "muted" : "nature"}>
                   {result.analysisUnavailable ? "Not identified" : "AI estimate"}
                 </Badge>
-                {result.simulated && <Badge variant="sun">Sample result (demo)</Badge>}
                 <Badge variant="outline" className="font-mono text-[11px]">
                   {result.model}
                 </Badge>
@@ -300,18 +296,8 @@ export function DiscoveryUploader({ missionId }: { missionId?: string }) {
                     Your photo is still on your device — it was not sent anywhere and nothing was
                     invented. Start Ollama with a vision model (for example{" "}
                     <code className="font-mono text-xs">ollama pull qwen2.5vl:3b</code>) and try
-                    again, or see the demo sample to preview the flow.
+                    again.
                   </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={() => void analyze({ simulate: true })}
-                    >
-                      <Sparkles /> Show a labelled sample
-                    </Button>
-                  </div>
                 </Callout>
               )}
 

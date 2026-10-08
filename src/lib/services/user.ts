@@ -26,7 +26,6 @@ export function toApproximateLocation(input: {
 
 export async function createUserFromOnboarding(
   input: OnboardingInput,
-  options: { isDemo?: boolean } = {},
 ): Promise<UserRecord> {
   const store = await getStore();
 
@@ -52,14 +51,14 @@ export async function createUserFromOnboarding(
   // minting a second one and silently re-pointing the session at it.
   const existingId = await getSessionUserId();
   const existing = existingId ? await store.getUser(existingId) : null;
-  if (existing && !existing.isDemo && !options.isDemo) {
+  if (existing) {
     const withPreferences = await store.updateUserPreferences(existing.id, preferences);
     const updated = await store.updateUserLocation(
       existing.id,
       input.locationPermission,
       approximateLocation,
     );
-    await setSession(existing.id, false);
+    await setSession(existing.id);
     return updated ?? withPreferences ?? existing;
   }
 
@@ -68,10 +67,9 @@ export async function createUserFromOnboarding(
     preferences,
     locationPermission: input.locationPermission,
     approximateLocation,
-    isDemo: options.isDemo ?? false,
   });
 
-  await setSession(user.id, user.isDemo);
+  await setSession(user.id);
   return user;
 }
 

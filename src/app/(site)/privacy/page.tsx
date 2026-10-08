@@ -146,7 +146,7 @@ export default async function PrivacyPage() {
               no copy kept anywhere else.
             </p>
             {user ? (
-              <DeleteMyData isDemo={user.isDemo} />
+              <DeleteMyData />
             ) : (
               <p className="text-xs">
                 You do not have a session, so there is nothing stored against you right now.

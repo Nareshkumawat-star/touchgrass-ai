@@ -51,7 +51,6 @@ export class MongoStore implements TouchGrassStore {
       preferences: input.preferences,
       locationPermission: input.locationPermission,
       approximateLocation: input.approximateLocation,
-      isDemo: input.isDemo ?? false,
     });
     return this.mapUser(doc);
   }
@@ -62,7 +61,6 @@ export class MongoStore implements TouchGrassStore {
     preferences: UserPreferences;
     locationPermission?: boolean;
     approximateLocation?: { lat: number; lng: number; label?: string | null } | null;
-    isDemo?: boolean;
     createdAt: Date;
   }): UserRecord {
     return {
@@ -83,7 +81,6 @@ export class MongoStore implements TouchGrassStore {
             label: doc.approximateLocation.label ?? undefined,
           }
         : undefined,
-      isDemo: Boolean(doc.isDemo),
       createdAt: iso(doc.createdAt),
     };
   }
@@ -321,7 +318,6 @@ export class MongoStore implements TouchGrassStore {
       provider: DiscoveryRecord["provider"];
       model: string;
       analysisUnavailable?: boolean;
-      simulated?: boolean;
       createdAt: Date;
     };
     return {
@@ -337,7 +333,6 @@ export class MongoStore implements TouchGrassStore {
       provider: record.provider,
       model: record.model,
       analysisUnavailable: Boolean(record.analysisUnavailable),
-      simulated: Boolean(record.simulated),
       createdAt: iso(record.createdAt),
     };
   }
@@ -357,7 +352,6 @@ export class MongoStore implements TouchGrassStore {
       provider: input.provider,
       model: input.model,
       analysisUnavailable: input.analysisUnavailable,
-      simulated: input.simulated,
       ...(input.createdAt ? { createdAt: new Date(input.createdAt) } : {}),
     });
     return this.mapDiscovery(doc.toObject() as never);
@@ -443,19 +437,5 @@ export class MongoStore implements TouchGrassStore {
       { upsert: true, new: true, setDefaultsOnInsert: true },
     ).lean();
     return this.mapStats(doc as never);
-  }
-
-  async resetDemoData(): Promise<number> {
-    const demoUsers = await UserModel.find({ isDemo: true }).select("_id").lean();
-    const ids = demoUsers.map((user) => user._id);
-    if (ids.length === 0) return 0;
-    await Promise.all([
-      UserModel.deleteMany({ _id: { $in: ids } }),
-      MissionModel.deleteMany({ userId: { $in: ids } }),
-      CompletedMissionModel.deleteMany({ userId: { $in: ids } }),
-      DiscoveryModel.deleteMany({ userId: { $in: ids } }),
-      UserStatsModel.deleteMany({ userId: { $in: ids } }),
-    ]);
-    return ids.length;
   }
 }

@@ -102,7 +102,6 @@ export class LocalJsonStore implements TouchGrassStore {
       preferences: input.preferences,
       locationPermission: input.locationPermission,
       approximateLocation: input.approximateLocation,
-      isDemo: input.isDemo ?? false,
       createdAt: new Date().toISOString(),
     };
     return this.mutate((db) => {
@@ -280,21 +279,6 @@ export class LocalJsonStore implements TouchGrassStore {
       if (existing) Object.assign(existing, merged);
       else db.stats.push(merged);
       return merged;
-    });
-  }
-
-  async resetDemoData(): Promise<number> {
-    return this.mutate((db) => {
-      const demoIds = new Set(
-        db.users.filter((user) => user.isDemo).map((user) => user.id),
-      );
-      if (demoIds.size === 0) return 0;
-      db.users = db.users.filter((user) => !demoIds.has(user.id));
-      db.missions = db.missions.filter((mission) => !demoIds.has(mission.userId));
-      db.completions = db.completions.filter((entry) => !demoIds.has(entry.userId));
-      db.discoveries = db.discoveries.filter((entry) => !demoIds.has(entry.userId));
-      db.stats = db.stats.filter((entry) => !demoIds.has(entry.userId));
-      return demoIds.size;
     });
   }
 }

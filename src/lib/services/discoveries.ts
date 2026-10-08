@@ -2,9 +2,9 @@
  * Discovery service.
  *
  * A discovery is only ever stored from an analysis result that either came
- * from a real vision model or was explicitly labelled as a demo sample /
- * unavailable — the image is kept as a data URL in the user's own record and
- * is never written to a public location.
+ * from a real vision model or was explicitly labelled as unavailable —
+ * the image is kept as a data URL in the user's own record and is never
+ * written to a public location.
  */
 
 import { getStore } from "@/lib/db";

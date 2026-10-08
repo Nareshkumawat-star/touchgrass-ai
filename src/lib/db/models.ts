@@ -52,7 +52,6 @@ const userSchema = new Schema(
       ),
       required: false,
     },
-    isDemo: { type: Boolean, default: false },
   },
   { timestamps: true, versionKey: false },
 );
@@ -115,7 +114,6 @@ const discoverySchema = new Schema(
     provider: { type: String, enum: ["local", "huggingface", "heuristic"], required: true },
     model: { type: String, required: true, maxlength: 80 },
     analysisUnavailable: { type: Boolean, default: false },
-    simulated: { type: Boolean, default: false },
   },
   { timestamps: { createdAt: true, updatedAt: false }, versionKey: false },
 );

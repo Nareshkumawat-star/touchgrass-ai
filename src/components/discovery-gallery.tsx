@@ -49,7 +49,6 @@ export function DiscoveryGallery({ discoveries }: { discoveries: DiscoveryRecord
             <div className="space-y-3 p-4">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="outline">{DISCOVERY_CATEGORY_LABELS[discovery.category]}</Badge>
-                {discovery.simulated && <Badge variant="sun">Sample</Badge>}
                 {discovery.analysisUnavailable && <Badge variant="muted">Not identified</Badge>}
                 <Badge variant="outline" className="font-mono text-[10px]">
                   {discovery.model}
@@ -93,7 +92,7 @@ export function DiscoveryGallery({ discoveries }: { discoveries: DiscoveryRecord
                     ? "Analysed locally"
                     : discovery.provider === "huggingface"
                       ? "Analysed remotely"
-                      : "Demo sample"}
+                      : "No model used"}
                 </span>
 
                 {confirmId === discovery.id ? (

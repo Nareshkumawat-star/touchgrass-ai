@@ -63,7 +63,7 @@ export const aiConfig = {
      * would be reported as "no vision model available" — which would be a lie.
      */
     visionTimeoutMs: num("OLLAMA_VISION_TIMEOUT_MS", 240_000),
-    /** Keeps the model resident between demo requests. */
+    /** Keeps the model resident between requests (faster follow-ups). */
     keepAlive: optional("OLLAMA_KEEP_ALIVE") ?? "10m",
   },
 

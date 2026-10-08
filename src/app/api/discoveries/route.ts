@@ -40,7 +40,6 @@ export async function POST(request: Request) {
       provider: parsed.data.provider,
       model: parsed.data.model,
       analysisUnavailable: parsed.data.analysisUnavailable,
-      simulated: parsed.data.simulated,
       createdAt: parsed.data.createdAt,
     });
 

@@ -13,7 +13,6 @@ import { Callout } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DemoBanner } from "@/components/demo-banner";
 import { GenerateMissionButton } from "@/components/generate-mission-button";
 import { Greeting } from "@/components/greeting";
 import { LevelCard } from "@/components/level-card";
@@ -41,8 +40,6 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6 sm:py-10">
-      {user.isDemo && <DemoBanner />}
-
       <header className="space-y-2">
         <Greeting name={user.name} />
         <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">

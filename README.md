@@ -28,7 +28,7 @@ The design rule behind every decision:
 - [Offline mode](#offline-mode)
 - [Privacy](#privacy)
 - [Safety](#safety)
-- [Two-minute demo](#two-minute-demo)
+- [Two-minute tour](#two-minute-tour)
 - [Deployment](#deployment)
 - [Verification: what was actually tested](#verification-what-was-actually-tested)
 - [Planned features (not implemented)](#planned-features-not-implemented)
@@ -102,10 +102,6 @@ Example missions the app produces:
 - Leaflet + OpenStreetMap tiles, plus the Overpass API for nearby green spaces.
   No paid map API and no map API key.
 
-**Demo mode**
-- One button seeds a clearly-labelled demo account with missions, completions,
-  discoveries, a streak and points, so a judge can see the whole loop in seconds.
-
 ---
 
 ## Architecture
@@ -114,7 +110,7 @@ Example missions the app produces:
 Browser (Next.js App Router, React 19, Tailwind v4, shadcn/ui, Leaflet)
    │  server actions / route handlers
    ▼
-Services  (lib/services/*)                    ← missions, stats, discoveries, demo
+Services  (lib/services/*)                    ← missions, stats, discoveries
    │
    ├──────────────► AI layer (lib/ai/*)       ← the swap point
    │                   AIProvider
@@ -185,8 +181,9 @@ Chrome against a local production build):
 | Mission mode (mobile) | `docs/screenshots/09-mission-mode.png` |
 
 To regenerate them: `npm run build`, then `PORT=3100 npm start` in one shell and
-`node scripts/screenshots.mjs http://127.0.0.1:3100` in another. The script seeds
-the demo account first, so the authenticated screens show real populated state.
+`node scripts/screenshots.mjs http://127.0.0.1:3100` in another. The script creates
+a fresh account and generates a mission first, so the authenticated screens have
+content to show.
 
 ---
 
@@ -251,7 +248,7 @@ and can even use a different installed model if the configured one is missing
 **Speed note.** On a laptop CPU, a 1.5B model writes a mission in roughly 10–25
 seconds; a 7B model needs a GPU. The UI shows a live elapsed timer while
 generating, and the dashboard warms the model in the background so the first
-mission is faster. If you want the fastest possible demo, set
+mission is faster. If you want the fastest possible missions, set
 `OLLAMA_MODEL=qwen2.5:0.5b`.
 
 ---
@@ -317,7 +314,7 @@ Models (`src/lib/db/models.ts`), all Mongoose, mirrored exactly by the local sto
 ```
 User              { name, preferences{experience, availableTime, activities[],
                     difficulty, surpriseMe}, locationPermission,
-                    approximateLocation{lat,lng,label}, isDemo, createdAt }
+                    approximateLocation{lat,lng,label}, createdAt }
 Mission           { userId, title, description, duration, difficulty, category,
                     steps[], thingsToLookFor[], safetyTips[], rewardPoints,
                     generatedBy, model, offlineGenerated, placeName, createdAt }
@@ -325,7 +322,7 @@ CompletedMission  { userId, missionId, missionTitle, category, completedAt,
                     duration, points, syncedFromOffline, note, clientId }
 Discovery         { userId, missionId, imageUrl, identification, confidence,
                     description, funFact, category, provider, model,
-                    analysisUnavailable, simulated, createdAt }
+                    analysisUnavailable, createdAt }
 UserStats         { userId, points, streakDays, longestStreak, missionsCompleted,
                     discoveries, totalMinutesOutside,
                     rewardedStreakMilestones[], firstMissionBonusAwarded,
@@ -365,7 +362,6 @@ failing requests. Verify the Mongo path any time with `npm run test:db`.
 | `POST` | `/api/sync` | Replay offline completions |
 | `GET`/`POST` | `/api/location` | Location consent, nearby parks + weather |
 | `GET`/`POST`/`DELETE` | `/api/preferences` | Read / update / delete everything |
-| `POST`/`DELETE` | `/api/demo` | Seed or wipe demo data |
 | `GET` | `/api/health` | Storage backend + provider readiness |
 
 All bodies are validated with Zod; all handlers return consistent JSON errors.
@@ -432,13 +428,14 @@ retrieved; when they are missing, the app says so instead of inventing them.
 
 ---
 
-## Two-minute demo
+## Two-minute tour
 
-A scripted flow is built into the app at `/demo`. Short version:
+The whole loop, start to finish:
 
-1. **Try Demo** on the landing page → a labelled sample account opens.
-2. **Generate My Mission** → the local model writes a mission (provider shown in
-   the header).
+1. **Get My First Mission** on the landing page → the onboarding wizard (two
+   taps, no account).
+2. **Generate My Mission** → the configured model writes a mission (provider
+   shown in the header).
 3. **Start Mission** → mission mode: timer, one step, "Put your phone away 🌳".
 4. **Finish** → points, bonuses, streak, level.
 5. **Upload a photo** → open-weight vision model returns a hedged identification
@@ -515,14 +512,17 @@ Everything below was run against the real app, not asserted:
 - The full API flow exercised over HTTP against a running server: onboarding →
   mission generation with a real local Qwen model → completion with points and
   streak → vision analysis of a photo → discovery save/list/delete → stats →
-  offline `/api/sync` replay (including duplicate-replay idempotency) → demo
-  seeding and reset → `/api/health` — **99 checks, 0 failures**
+  offline `/api/sync` replay (including duplicate-replay idempotency) → the
+  removed demo surfaces verified gone (`/api/demo` and `/demo` return 404) →
+  `/api/health` — **92 checks, 0 failures**
+  (`node scripts/e2e.mjs http://127.0.0.1:3100`, run with a local Ollama vision
+  model so the vision block runs fully).
   (`node scripts/e2e.mjs http://127.0.0.1:3100`). Onboarding is covered there by
   the privacy rule (coordinates sent while location is declined are dropped), the
   idempotency rule (re-submitting onboarding reuses the account instead of
   orphaning it), and the ~1 km rounding of an opted-in position.
-- The same 99 checks re-run against the MongoDB store with `mongodb-memory-server`
-  (`npm run test:db`) — **99 checks, 0 failures** — because no MongoDB daemon runs
+- The same 92 checks re-run against the MongoDB store with `mongodb-memory-server`
+  (`npm run test:db`) — **92 checks, 0 failures** — because no MongoDB daemon runs
   on the development machine.
 - The onboarding wizard itself driven in a real browser (headless Chrome over the
   DevTools protocol): step gating, submission, the redirect to the dashboard, the
@@ -584,8 +584,7 @@ src/
 │   │   ├── discoveries/         # gallery, delete
 │   │   ├── rewards/             # levels, points table, history
 │   │   ├── open/                # "Why Open AI?"
-│   │   ├── privacy/
-│   │   └── demo/                # 2-minute judge script
+│   │   └── privacy/
 │   ├── mission/[id]/            # mission mode (no chrome)
 │   │   └── complete/            # log + discovery flow
 │   ├── offline/                 # service-worker fallback screen
@@ -595,7 +594,7 @@ src/
 ├── lib/
 │   ├── ai/                      # provider interface + implementations
 │   ├── db/                      # Mongoose models + local store
-│   ├── services/                # mission, stats, discovery, demo logic
+│   ├── services/                # mission, stats, discovery logic
 │   ├── safety.ts                # mission safety review
 │   ├── points.ts                # rewards, levels, streaks
 │   ├── schemas.ts               # Zod contracts

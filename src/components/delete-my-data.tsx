@@ -11,7 +11,7 @@ import { Callout } from "@/components/ui/alert";
  * irreversible — and because a single mis-tap should never wipe someone's
  * mission history.
  */
-export function DeleteMyData({ isDemo }: { isDemo?: boolean }) {
+export function DeleteMyData() {
   const router = useRouter();
   const [confirming, setConfirming] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
@@ -53,12 +53,6 @@ export function DeleteMyData({ isDemo }: { isDemo?: boolean }) {
         <Button type="button" variant="outline" size="lg" onClick={() => setConfirming(true)}>
           <Trash2 /> Delete my data
         </Button>
-      )}
-
-      {isDemo && (
-        <p className="text-xs text-muted-foreground">
-          You are in the demo account, so this deletes the shared demo data too.
-        </p>
       )}
 
       {error && (

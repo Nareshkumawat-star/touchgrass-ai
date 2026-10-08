@@ -12,7 +12,6 @@ import {
   WifiOff,
 } from "lucide-react";
 import { getActiveProviderStatus } from "@/lib/ai/provider";
-import { DemoButton } from "@/components/demo-button";
 import { FlowDiagram } from "@/components/flow-diagram";
 import { MissionPreview } from "@/components/mission-preview";
 import { Badge } from "@/components/ui/badge";
@@ -84,7 +83,6 @@ export default async function LandingPage() {
               <Button asChild variant="outline" size="lg">
                 <Link href="#how-it-works">How It Works</Link>
               </Button>
-              <DemoButton />
             </div>
 
             <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
@@ -247,7 +245,6 @@ export default async function LandingPage() {
               Get My First Mission <ArrowRight />
             </Link>
           </Button>
-          <DemoButton variant="secondary" />
         </div>
       </section>
     </div>

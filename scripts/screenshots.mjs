@@ -6,9 +6,9 @@
  *   node scripts/screenshots.mjs http://127.0.0.1:3100
  *
  * Uses headless Chrome over the DevTools protocol (no extra dependencies — the
- * WebSocket client is built into Node 22+). It seeds the demo account first so
- * the authenticated screens show populated state, then writes PNGs to
- * docs/screenshots/.
+ * WebSocket client is built into Node 22+). It creates a fresh account through
+ * onboarding and generates a mission first, so the authenticated screens have
+ * content to show, then writes PNGs to docs/screenshots/.
  */
 
 import { spawn } from "node:child_process";
@@ -26,14 +26,33 @@ mkdirSync(OUT_DIR, { recursive: true });
 
 /* ------------------------------------------------------- authenticated setup */
 
-async function seedDemoSession() {
-  const response = await fetch(`${BASE}/api/demo`, { method: "POST" });
-  if (!response.ok) throw new Error(`demo seeding failed: ${response.status}`);
-  const setCookie = response.headers.getSetCookie?.() ?? [];
+async function seedSession() {
+  const onboard = await fetch(`${BASE}/api/onboarding`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      name: "Screenshot Tester",
+      experience: "casual",
+      availableTime: 20,
+      difficulty: "easy",
+      activities: ["walking", "nature", "birds"],
+      surpriseMe: false,
+      locationPermission: false,
+    }),
+  });
+  if (!onboard.ok) throw new Error(`onboarding failed: ${onboard.status}`);
+  const setCookie = onboard.headers.getSetCookie?.() ?? [];
   const session = setCookie.find((entry) => entry.startsWith("tg_session="));
-  if (!session) throw new Error("no session cookie returned by /api/demo");
+  if (!session) throw new Error("no session cookie returned by /api/onboarding");
   const value = session.split(";")[0].split("=").slice(1).join("=");
   const cookieHeader = session.split(";")[0];
+
+  const mission = await fetch(`${BASE}/api/ai/mission`, {
+    method: "POST",
+    headers: { "content-type": "application/json", cookie: cookieHeader },
+    body: JSON.stringify({ availableTime: 20 }),
+  });
+  if (!mission.ok) throw new Error(`mission generation failed: ${mission.status}`);
 
   const history = await fetch(`${BASE}/api/missions/history`, {
     headers: { cookie: cookieHeader },
@@ -128,8 +147,8 @@ const SHOTS = [
 ];
 
 async function main() {
-  const { value: sessionCookie, pendingMissionId } = await seedDemoSession();
-  console.log(`seeded demo session (${pendingMissionId ? "with a pending mission" : "no pending mission"})`);
+  const { value: sessionCookie, pendingMissionId } = await seedSession();
+  console.log(`seeded session (${pendingMissionId ? "with a pending mission" : "no pending mission"})`);
 
   if (pendingMissionId) {
     SHOTS.push({

@@ -5,7 +5,7 @@
  *
  * Exercises the real flow: onboarding → local model mission generation →
  * completion (with idempotency) → vision analysis → discovery CRUD → stats →
- * offline sync replay → demo seeding → every page rendered.
+ * offline sync replay → demo surfaces removed → every page rendered.
  *
  * It asserts behaviour (hedged identifications, safety line present, points not
  * double-awarded), not exact AI wording, and exits non-zero on any failure.
@@ -329,7 +329,6 @@ if (VISION) {
         provider: body.provider,
         model: body.model,
         analysisUnavailable: false,
-        simulated: false,
       }),
     });
     check("POST /api/discoveries saves a discovery", save.status === 201, `got ${save.status} ${JSON.stringify(save.body).slice(0, 200)}`);
@@ -400,30 +399,22 @@ if (VISION) {
   check("an out-of-range time budget is rejected", bogus.status === 422, `got ${bogus.status}`);
 }
 
-// 12. Demo mode
+// 12. Demo mode has been removed — no endpoint or page may bring it back.
 {
   const start = await api("/api/demo", { method: "POST" });
-  check("POST /api/demo seeds a demo account", start.status === 201, `got ${start.status}`);
-  check("demo seeds missions and discoveries", (start.body?.seeded?.missions ?? 0) > 0 && (start.body?.seeded?.discoveries ?? 0) > 0, JSON.stringify(start.body?.seeded));
-
-  const stats = await api("/api/stats");
-  check("demo account has points", (stats.body?.stats?.points ?? 0) > 500, `points=${stats.body?.stats?.points}`);
-  check("demo account has a streak", (stats.body?.stats?.streakDays ?? 0) >= 3, `streak=${stats.body?.stats?.streakDays}`);
-
-  const page1 = await page("/dashboard");
-  check("demo dashboard renders", page1.status === 200, `got ${page1.status}`);
-  check("demo dashboard is labelled as demo data", /demo data/i.test(page1.html));
+  check("POST /api/demo no longer exists", start.status === 404, `got ${start.status}`);
 
   const reset = await api("/api/demo", { method: "DELETE" });
-  check("DELETE /api/demo wipes demo data", reset.status === 200 && reset.body?.removed >= 1, JSON.stringify(reset.body));
+  check("DELETE /api/demo no longer exists", reset.status === 404, `got ${reset.status}`);
 
-  // Wiping demo data also invalidates a session that pointed at a demo user,
-  // and the app should send that visitor back to onboarding rather than break.
-  const orphaned = await page("/dashboard");
+  const demoPage = await page("/demo");
+  check("page /demo no longer exists", demoPage.status === 404, `got ${demoPage.status}`);
+
+  const dashboard = await page("/dashboard");
   check(
-    "a wiped demo session is redirected to onboarding",
-    orphaned.status === 307 && orphaned.location.includes("/onboarding"),
-    `got ${orphaned.status} → ${orphaned.location || "(no location)"}`,
+    "dashboard has no demo banner",
+    dashboard.status === 200 && !/demo data/i.test(dashboard.html),
+    `got ${dashboard.status}`,
   );
 }
 
@@ -475,7 +466,6 @@ if (VISION) {
     ["/rewards", /how points are earned/i],
     ["/open", /why open ai/i],
     ["/privacy", /your data/i],
-    ["/demo", /two minutes|2 minutes/i],
     ["/offline", /offline/i],
   ];
 

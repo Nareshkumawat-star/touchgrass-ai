@@ -36,7 +36,6 @@ export async function POST(request: Request) {
     const outcome = await analyzeDiscoveryImage({
       imageDataUrl: parsed.data.imageUrl,
       hint: parsed.data.hint,
-      simulate: parsed.data.simulate,
     });
 
     return ok(outcome);

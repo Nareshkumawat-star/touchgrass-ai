@@ -105,8 +105,6 @@ export const analyzeRequestSchema = z.object({
   missionId: z.string().trim().max(64).optional(),
   /** Optional user-provided hint, e.g. "I think it's a bird". */
   hint: z.string().trim().max(160).optional(),
-  /** Demo mode analyses are clearly simulabeled as a sample. */
-  simulate: z.boolean().optional(),
 });
 
 export const completeMissionSchema = z.object({
@@ -138,7 +136,6 @@ export const createDiscoverySchema = z.object({
   provider: z.enum(["local", "huggingface", "heuristic"]),
   model: z.string().trim().max(80),
   analysisUnavailable: z.boolean().default(false),
-  simulated: z.boolean().default(false),
   createdAt: z.string().datetime().optional(),
 });
 

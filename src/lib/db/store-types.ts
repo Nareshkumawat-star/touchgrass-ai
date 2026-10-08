@@ -24,7 +24,6 @@ export interface CreateUserInput {
   preferences: UserPreferences;
   locationPermission: boolean;
   approximateLocation?: ApproximateLocation;
-  isDemo?: boolean;
 }
 
 export interface CreateMissionInput extends MissionDraft {
@@ -63,7 +62,6 @@ export interface CreateDiscoveryInput {
   provider: AIProviderId;
   model: string;
   analysisUnavailable: boolean;
-  simulated: boolean;
   createdAt?: string;
 }
 
@@ -117,7 +115,4 @@ export interface TouchGrassStore {
 
   getStats(userId: string): Promise<UserStatsRecord | null>;
   upsertStats(userId: string, patch: StatsPatch): Promise<UserStatsRecord>;
-
-  /** Removes demo users and everything they own. Real users are untouched. */
-  resetDemoData(): Promise<number>;
 }
