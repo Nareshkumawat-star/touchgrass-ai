@@ -1,0 +1,44 @@
+# Render Blueprint — TouchGrass AI
+#
+# Deploy: Render dashboard → New → Blueprint → select this repo (Render picks
+# this file up automatically).
+#
+# Two values are deliberately left unset here; paste them in the dashboard
+# after the blueprint is created (Service → Environment → set value):
+#
+#   MONGODB_URI            your MongoDB Atlas connection string (SRV)
+#   HUGGINGFACE_API_TOKEN  an hf_... token; enables the hosted Qwen models
+#
+# If you skip them the app still runs: it falls back to the local JSON store
+# (ephemeral on Render) and to the reviewed offline mission templates.
+
+services:
+  - type: web
+    name: touchgrass-ai
+    runtime: node
+    plan: free # use starter/standard if the 512 MB free build runs out of memory
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      # Signs the anonymous session cookie — required in production.
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: MONGODB_DB
+        value: touchgrass
+      # Paste your Atlas SRV string in the dashboard (never commit it).
+      - key: MONGODB_URI
+        sync: false
+      # No Ollama on Render: hosted open-weight models first, reviewed offline
+      # templates as the guaranteed floor. Set this back to
+      # "local,huggingface,heuristic" only if you point OLLAMA_BASE_URL at an
+      # external Ollama host.
+      - key: AI_PROVIDER_ORDER
+        value: huggingface,heuristic
+      # Paste an hf_... token in the dashboard to enable the provider above.
+      - key: HUGGINGFACE_API_TOKEN
+        sync: false

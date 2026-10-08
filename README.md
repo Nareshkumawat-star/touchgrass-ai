@@ -463,6 +463,36 @@ A scripted flow is built into the app at `/demo`. Short version:
 3. The JSON fallback store is not suitable for serverless filesystems — use
    MongoDB (or Atlas) there.
 
+**Render** (this repo ships a [`render.yaml`](render.yaml) Blueprint)
+
+1. Push the repo to GitHub / GitLab / Bitbucket.
+2. Create a free MongoDB Atlas M0 cluster, create a database user, and in
+   Network Access allow `0.0.0.0/0` (Render instances have dynamic IPs).
+   Copy the SRV connection string.
+3. Render dashboard → **New → Blueprint** → select the repo. Render picks up
+   `render.yaml`: Node 22, `npm ci && npm run build`, `npm start`, health check
+   on `/api/health`, and a generated `SESSION_SECRET`.
+4. On the created service, set the two `sync: false` variables under
+   **Environment**: `MONGODB_URI` (your Atlas SRV string) and
+   `HUGGINGFACE_API_TOKEN` (a free `hf_...` token from
+   <https://huggingface.co/settings/tokens>), then trigger a manual deploy.
+5. Check `<your-service>.onrender.com/api/health`: it should report
+   `storage.kind = "mongodb"` and `ai.active = "huggingface"`.
+
+Render notes:
+
+- Ollama cannot run on Render, so the Blueprint sets
+  `AI_PROVIDER_ORDER=huggingface,heuristic`: hosted open-weight Qwen models
+  answer first, the reviewed offline templates are the guaranteed floor, and
+  the header always says which one replied. If the Hugging Face provider
+  errors (e.g. no inference credits), the app degrades gracefully instead of
+  failing.
+- The free plan sleeps after inactivity and wipes the filesystem on every
+  deploy — that is why production data lives in Atlas, not `.touchgrass-data`.
+  Without `MONGODB_URI` set the app still runs, but resets on each redeploy.
+- If `next build` runs out of memory on the 512 MB free instance, move the
+  service to the Starter plan.
+
 **Self-hosted with local AI** (the intended way to run this project)
 
 ```bash

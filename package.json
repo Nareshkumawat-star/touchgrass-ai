@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "description": "AI-powered outdoor activity companion that generates short missions designed to get you off your screen.",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
