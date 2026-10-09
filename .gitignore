@@ -46,3 +46,10 @@ next-env.d.ts
 
 # scratch artifacts from the AI probe scripts
 /scripts/test-leaf.png
+cookies.txt
+headers.txt
+fresh.txt
+analyze-*.json
+analyze-*.err
+onboard-*.json
+
